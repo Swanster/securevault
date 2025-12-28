@@ -1,0 +1,27 @@
+{
+    "name": "SecureVault",
+    "short_name": "SecureVault",
+    "description": "Your secure password manager - store and manage passwords with AES-256 encryption",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f0f1a",
+    "theme_color": "#6366f1",
+    "orientation": "any",
+    "icons": [
+        {
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%236366f1' width='512' height='512' rx='96'/><path fill='white' d='M256 100L156 155v80c0 74 54 143 100 160 46-17 100-86 100-160v-80l-100-55zm0 135h80c-7 55-35 104-80 120V235h-80v-60l80-40v100z'/></svg>",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%236366f1' width='192' height='192' rx='32'/><path fill='white' d='M96 36L56 58v32c0 30 22 57 40 64 18-7 40-34 40-64V58L96 36zm0 54h32c-3 22-14 42-32 48V90H64V66l32-16v40z'/></svg>",
+            "sizes": "192x192",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        }
+    ],
+    "categories": ["utilities", "security"],
+    "lang": "en",
+    "dir": "ltr"
+}
