@@ -77,6 +77,17 @@ const App = (() => {
         // Category tabs
         document.getElementById('category-tabs').addEventListener('click', handleCategoryClick);
 
+        // Sidebar navigation (desktop)
+        document.querySelectorAll('.sidebar-nav-item[data-category]').forEach(item => {
+            item.addEventListener('click', handleSidebarCategoryClick);
+        });
+        document.getElementById('sidebar-settings-btn')?.addEventListener('click', () => showScreen('settings'));
+        document.getElementById('sidebar-lock-btn')?.addEventListener('click', lockVault);
+
+        // View toggle (desktop)
+        document.getElementById('list-view-btn')?.addEventListener('click', () => setViewMode('list'));
+        document.getElementById('grid-view-btn')?.addEventListener('click', () => setViewMode('grid'));
+
         // Settings
         document.getElementById('settings-back').addEventListener('click', () => showScreen('vault'));
         document.getElementById('export-btn').addEventListener('click', exportBackup);
@@ -351,7 +362,9 @@ const App = (() => {
         const list = document.getElementById('password-list');
         const emptyState = document.getElementById('empty-state');
         const searchTerm = document.getElementById('search-input').value.toLowerCase();
-        const activeCategory = document.querySelector('.category-tab.active').dataset.category;
+        const activeCategory = document.querySelector('.category-tab.active')?.dataset.category ||
+            document.querySelector('.sidebar-nav-item.active')?.dataset.category ||
+            'all';
 
         let filtered = entries.filter(entry => {
             const matchesSearch = entry.name.toLowerCase().includes(searchTerm) ||
@@ -359,6 +372,12 @@ const App = (() => {
             const matchesCategory = activeCategory === 'all' || entry.category === activeCategory;
             return matchesSearch && matchesCategory;
         });
+
+        // Update item count
+        const itemCount = document.getElementById('item-count');
+        if (itemCount) {
+            itemCount.textContent = `(${filtered.length})`;
+        }
 
         if (filtered.length === 0) {
             list.innerHTML = '';
@@ -369,7 +388,7 @@ const App = (() => {
         emptyState.classList.add('hidden');
         list.innerHTML = filtered.map(entry => `
             <div class="password-item" data-id="${entry.id}">
-                <div class="password-item-icon">${getFaviconHtml(entry)}</div>
+                <div class="password-item-icon ${getCardColor(entry)}">${getCardIcon(entry)}</div>
                 <div class="password-item-info">
                     <div class="password-item-name">${escapeHtml(entry.name)}</div>
                     <div class="password-item-username">${escapeHtml(entry.username || 'No username')}</div>
@@ -398,6 +417,39 @@ const App = (() => {
             });
         });
     }
+
+    // Card colors for grid view
+    const CARD_COLORS = [
+        'color-blue', 'color-orange', 'color-teal', 'color-yellow',
+        'color-purple', 'color-green', 'color-red', 'color-pink',
+        'color-cyan', 'color-slate'
+    ];
+
+    function getCardColor(entry) {
+        // Use a hash of the name to get a consistent color
+        let hash = 0;
+        const str = entry.name || '';
+        for (let i = 0; i < str.length; i++) {
+            hash = ((hash << 5) - hash) + str.charCodeAt(i);
+            hash = hash & hash;
+        }
+        return CARD_COLORS[Math.abs(hash) % CARD_COLORS.length];
+    }
+
+    function getCardIcon(entry) {
+        const url = entry.url || entry.website;
+        if (url) {
+            try {
+                const domain = new URL(url.startsWith('http') ? url : 'https://' + url).hostname;
+                return `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" alt="" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><span style="display:none" class="fallback-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>`;
+            } catch (e) {
+                // Invalid URL, fall back to lock icon
+            }
+        }
+        // Default lock icon for entries without URL
+        return `<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+    }
+
 
     function getFaviconHtml(entry) {
         const url = entry.url || entry.website;
@@ -431,7 +483,64 @@ const App = (() => {
         if (e.target.classList.contains('category-tab')) {
             document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
             e.target.classList.add('active');
+            // Sync with sidebar
+            const category = e.target.dataset.category;
+            document.querySelectorAll('.sidebar-nav-item[data-category]').forEach(item => {
+                item.classList.toggle('active', item.dataset.category === category);
+            });
+            updateVaultTitle(category);
             renderEntries();
+        }
+    }
+
+    function handleSidebarCategoryClick(e) {
+        const item = e.target.closest('.sidebar-nav-item');
+        if (!item) return;
+
+        const category = item.dataset.category;
+
+        // Update sidebar active state
+        document.querySelectorAll('.sidebar-nav-item[data-category]').forEach(i => {
+            i.classList.toggle('active', i.dataset.category === category);
+        });
+
+        // Sync with category tabs (mobile)
+        document.querySelectorAll('.category-tab').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.category === category);
+        });
+
+        updateVaultTitle(category);
+        renderEntries();
+    }
+
+    function updateVaultTitle(category) {
+        const titleMap = {
+            'all': 'All Items',
+            'Social': 'Social',
+            'Work': 'Work',
+            'Finance': 'Finance',
+            'Shopping': 'Shopping',
+            'Other': 'Other'
+        };
+        const titleEl = document.getElementById('vault-title');
+        if (titleEl) {
+            titleEl.textContent = titleMap[category] || 'All Items';
+        }
+    }
+
+    function setViewMode(mode) {
+        const listBtn = document.getElementById('list-view-btn');
+        const gridBtn = document.getElementById('grid-view-btn');
+        const passwordList = document.getElementById('password-list');
+
+        if (mode === 'list') {
+            listBtn?.classList.add('active');
+            gridBtn?.classList.remove('active');
+            passwordList?.classList.add('list-view');
+        } else {
+            gridBtn?.classList.add('active');
+            listBtn?.classList.remove('active');
+            passwordList?.classList.remove('list-view');
         }
     }
 
