@@ -58,14 +58,18 @@ const SyncModule = (() => {
             headers
         });
 
-        if (response.status === 401) {
-            // Token expired or invalid
-            clearToken();
-            throw new Error('Session expired. Please login again.');
-        }
-
         if (!response.ok) {
             const error = await response.json().catch(() => ({ detail: 'Request failed' }));
+
+            // For 401, clear token only if it's not a login/register request
+            if (response.status === 401) {
+                const isAuthEndpoint = endpoint === '/api/login' || endpoint === '/api/register';
+                if (!isAuthEndpoint) {
+                    clearToken();
+                }
+                throw new Error(error.detail || 'Authentication failed');
+            }
+
             throw new Error(error.detail || 'Request failed');
         }
 

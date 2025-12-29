@@ -107,11 +107,17 @@ async def startup():
 
 # ==================== AUTH HELPERS ====================
 
+def _truncate_password(password: str) -> str:
+    """Truncate password to 72 bytes (bcrypt limit)"""
+    # Encode to bytes, truncate, decode back
+    password_bytes = password.encode('utf-8')[:72]
+    return password_bytes.decode('utf-8', errors='ignore')
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    return pwd_context.verify(_truncate_password(plain_password), hashed_password)
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    return pwd_context.hash(_truncate_password(password))
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
@@ -258,8 +264,14 @@ async def sync_vault(sync: SyncRequest, user_id: int = Depends(get_current_user)
         
         # Compare timestamps
         if sync.last_sync:
-            client_time = datetime.fromisoformat(sync.last_sync)
+            client_time = datetime.fromisoformat(sync.last_sync.replace('Z', '+00:00'))
             server_time = datetime.fromisoformat(server_updated)
+            
+            # Make both timezone-naive for comparison
+            if client_time.tzinfo is not None:
+                client_time = client_time.replace(tzinfo=None)
+            if server_time.tzinfo is not None:
+                server_time = server_time.replace(tzinfo=None)
             
             if server_time > client_time:
                 # Server has newer data
