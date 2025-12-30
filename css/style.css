@@ -542,6 +542,37 @@ textarea {
         bottom: var(--spacing-xl);
         right: var(--spacing-xl);
     }
+
+    /* ==================== LOGIN/SETUP SCREENS (DESKTOP) ==================== */
+    #login-screen.active,
+    #setup-screen.active {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: var(--spacing-xl);
+        background: var(--bg-dark);
+    }
+
+    #login-screen .card,
+    #setup-screen .card {
+        width: 100%;
+        max-width: 420px;
+        padding: var(--spacing-xl) var(--spacing-lg);
+    }
+
+    #login-screen .logo,
+    #setup-screen .logo {
+        margin-bottom: var(--spacing-xl);
+    }
+
+    /* Settings screen also needs constraint */
+    #settings-screen.active {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: var(--spacing-xl);
+    }
 }
 
 /* Hide sidebar on mobile/tablet */

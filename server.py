@@ -11,7 +11,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, EmailStr
-from passlib.context import CryptContext
+import bcrypt
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 import aiosqlite
@@ -43,9 +43,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # JWT Bearer token
 security = HTTPBearer()
@@ -107,17 +104,16 @@ async def startup():
 
 # ==================== AUTH HELPERS ====================
 
-def _truncate_password(password: str) -> str:
-    """Truncate password to 72 bytes (bcrypt limit)"""
-    # Encode to bytes, truncate, decode back
-    password_bytes = password.encode('utf-8')[:72]
-    return password_bytes.decode('utf-8', errors='ignore')
-
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(_truncate_password(plain_password), hashed_password)
+    """Verify password against hash using bcrypt"""
+    password_bytes = plain_password.encode('utf-8')[:72]  # bcrypt limit
+    return bcrypt.checkpw(password_bytes, hashed_password.encode('utf-8'))
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(_truncate_password(password))
+    """Hash password using bcrypt"""
+    password_bytes = password.encode('utf-8')[:72]  # bcrypt limit
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password_bytes, salt).decode('utf-8')
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()

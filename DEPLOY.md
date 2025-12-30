@@ -140,6 +140,47 @@ sudo systemctl stop securevault
 
 ---
 
+## Updating SecureVault
+
+To update your deployed SecureVault with the latest changes from GitHub:
+
+```bash
+cd /var/www/securevault
+
+# Fetch and force update to match remote (recommended)
+sudo git fetch origin
+sudo git reset --hard origin/main
+
+# Restart the service
+sudo systemctl restart securevault
+```
+
+**If you have local changes you want to keep:**
+
+```bash
+cd /var/www/securevault
+
+# Stash local changes
+sudo git stash
+
+# Pull latest
+sudo git pull origin main
+
+# Reapply local changes
+sudo git stash pop
+
+# Restart
+sudo systemctl restart securevault
+```
+
+**Quick one-liner update:**
+
+```bash
+cd /var/www/securevault && sudo git fetch origin && sudo git reset --hard origin/main && sudo systemctl restart securevault
+```
+
+---
+
 ## Security Tips
 
 1. **Firewall**: Only allow port 8443

@@ -5,8 +5,8 @@
 
 const BackupModule = (() => {
     // Google Drive API configuration
-    const GOOGLE_CLIENT_ID = ''; // User needs to add their own Client ID
-    const GOOGLE_API_KEY = ''; // User needs to add their own API Key
+    const GOOGLE_CLIENT_ID = '234745664114-4ljoufqemkpuvor7r7s1thhh2vcthirk.apps.googleusercontent.com';
+    const GOOGLE_API_KEY = 'AIzaSyDqUoTa-EF-u-TpNPq7hgQX9sDb7wLpvYE';
     const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'];
     const SCOPES = 'https://www.googleapis.com/auth/drive.file';
 
@@ -14,36 +14,34 @@ const BackupModule = (() => {
     const BACKUP_FILE_PREFIX = 'securevault_backup_';
     const MAX_BACKUPS = 5;
 
-    let isGoogleInitialized = false;
-    let googleAuth = null;
+    let isGapiLoaded = false;
+    let isGisLoaded = false;
+    let tokenClient = null;
+    let accessToken = null;
+    let userProfile = null;
 
-    // ==================== GOOGLE DRIVE INTEGRATION ====================
+    // ==================== GOOGLE DRIVE INTEGRATION (GIS) ====================
 
     /**
-     * Initialize Google API client
+     * Initialize Google API client (GAPI for Drive API)
      * @returns {Promise<void>}
      */
-    async function initGoogleDrive() {
-        if (!GOOGLE_CLIENT_ID || !GOOGLE_API_KEY) {
-            console.warn('Google Drive API credentials not configured');
-            return false;
-        }
-
+    async function initGapi() {
         return new Promise((resolve, reject) => {
-            gapi.load('client:auth2', async () => {
+            if (typeof gapi === 'undefined') {
+                reject(new Error('Google API not loaded'));
+                return;
+            }
+            gapi.load('client', async () => {
                 try {
                     await gapi.client.init({
                         apiKey: GOOGLE_API_KEY,
-                        clientId: GOOGLE_CLIENT_ID,
-                        discoveryDocs: DISCOVERY_DOCS,
-                        scope: SCOPES
+                        discoveryDocs: DISCOVERY_DOCS
                     });
-
-                    googleAuth = gapi.auth2.getAuthInstance();
-                    isGoogleInitialized = true;
-                    resolve(true);
+                    isGapiLoaded = true;
+                    resolve();
                 } catch (error) {
-                    console.error('Google Drive init error:', error);
+                    console.error('GAPI init error:', error);
                     reject(error);
                 }
             });
@@ -51,31 +49,143 @@ const BackupModule = (() => {
     }
 
     /**
+     * Initialize Google Identity Services (GIS) for OAuth
+     * @returns {Promise<void>}
+     */
+    function initGis() {
+        return new Promise((resolve, reject) => {
+            if (typeof google === 'undefined' || !google.accounts) {
+                reject(new Error('Google Identity Services not loaded'));
+                return;
+            }
+
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: GOOGLE_CLIENT_ID,
+                scope: SCOPES,
+                callback: (response) => {
+                    if (response.error) {
+                        console.error('Token error:', response);
+                        return;
+                    }
+                    accessToken = response.access_token;
+                    // Fetch user profile
+                    fetchUserProfile();
+                }
+            });
+
+            isGisLoaded = true;
+            resolve();
+        });
+    }
+
+    /**
+     * Fetch user profile from Google
+     */
+    async function fetchUserProfile() {
+        if (!accessToken) return;
+
+        try {
+            const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            userProfile = await response.json();
+        } catch (error) {
+            console.error('Failed to fetch user profile:', error);
+        }
+    }
+
+    /**
+     * Initialize Google Drive (both GAPI and GIS)
+     * @returns {Promise<boolean>}
+     */
+    async function initGoogleDrive() {
+        if (!GOOGLE_CLIENT_ID || !GOOGLE_API_KEY) {
+            console.warn('Google Drive API credentials not configured');
+            return false;
+        }
+
+        try {
+            await initGapi();
+            await initGis();
+            return true;
+        } catch (error) {
+            console.error('Google Drive init error:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Check if user is signed in to Google
      * @returns {boolean}
      */
     function isSignedIn() {
-        return googleAuth && googleAuth.isSignedIn.get();
+        return !!accessToken;
     }
 
     /**
-     * Sign in to Google
+     * Sign in to Google using GIS
      * @returns {Promise<void>}
      */
     async function signIn() {
-        if (!isGoogleInitialized) {
-            await initGoogleDrive();
+        if (!isGapiLoaded) {
+            await initGapi();
         }
-        return googleAuth.signIn();
+        if (!isGisLoaded) {
+            await initGis();
+        }
+
+        return new Promise((resolve, reject) => {
+            tokenClient.callback = async (response) => {
+                if (response.error) {
+                    reject(response);
+                    return;
+                }
+                accessToken = response.access_token;
+                await fetchUserProfile();
+                resolve();
+            };
+
+            if (accessToken === null) {
+                // Prompt user to select account and consent
+                tokenClient.requestAccessToken({ prompt: 'consent' });
+            } else {
+                // Skip account selection
+                tokenClient.requestAccessToken({ prompt: '' });
+            }
+        });
     }
 
     /**
      * Sign out from Google
      */
     function signOut() {
-        if (googleAuth) {
-            googleAuth.signOut();
+        if (accessToken) {
+            google.accounts.oauth2.revoke(accessToken, () => {
+                accessToken = null;
+                userProfile = null;
+            });
         }
+    }
+
+    /**
+     * Get signed-in user's email address
+     * @returns {string|null} Email address or null if not signed in
+     */
+    function getSignedInUserEmail() {
+        return userProfile ? userProfile.email : null;
+    }
+
+    /**
+     * Get signed-in user's profile information
+     * @returns {object|null} Profile info with name, email, imageUrl or null if not signed in
+     */
+    function getSignedInUserProfile() {
+        if (!userProfile) return null;
+        return {
+            name: userProfile.name,
+            email: userProfile.email,
+            imageUrl: userProfile.picture
+        };
     }
 
     /**
@@ -383,6 +493,8 @@ const BackupModule = (() => {
         isSignedIn,
         signIn,
         signOut,
+        getSignedInUserEmail,
+        getSignedInUserProfile,
         uploadToGoogleDrive,
         listGoogleDriveBackups,
         downloadFromGoogleDrive,

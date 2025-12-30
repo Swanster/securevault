@@ -174,6 +174,17 @@ const App = (() => {
         } catch (error) {
             console.error('Cloud sync init error:', error);
         }
+
+        // Google Drive backup
+        try {
+            document.getElementById('gdrive-connect-btn')?.addEventListener('click', connectGoogleDrive);
+            document.getElementById('gdrive-disconnect-btn')?.addEventListener('click', disconnectGoogleDrive);
+            document.getElementById('gdrive-backup-btn')?.addEventListener('click', backupToGoogleDrive);
+            document.getElementById('gdrive-restore-btn')?.addEventListener('click', restoreFromGoogleDrive);
+            updateGoogleDriveUI();
+        } catch (error) {
+            console.error('Google Drive init error:', error);
+        }
     }
 
     // ==================== SCREEN NAVIGATION ====================
@@ -1332,6 +1343,131 @@ const App = (() => {
             showToast('Sync failed: ' + error.message, 'error');
         } finally {
             showLoading(false);
+        }
+    }
+
+    // ==================== GOOGLE DRIVE BACKUP ====================
+
+    async function connectGoogleDrive() {
+        if (!BackupModule.isGoogleDriveConfigured()) {
+            showToast('Google Drive not configured. Please add API credentials.', 'error');
+            return;
+        }
+
+        showLoading(true);
+        try {
+            await BackupModule.initGoogleDrive();
+            await BackupModule.signIn();
+            updateGoogleDriveUI();
+            showToast('Connected to Google Drive!', 'success');
+        } catch (error) {
+            console.error('Google Drive connect error:', error);
+            showToast('Failed to connect to Google Drive', 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function disconnectGoogleDrive() {
+        BackupModule.signOut();
+        updateGoogleDriveUI();
+        showToast('Disconnected from Google Drive', 'success');
+    }
+
+    async function backupToGoogleDrive() {
+        if (!BackupModule.isSignedIn()) {
+            showToast('Please connect to Google Drive first', 'error');
+            return;
+        }
+
+        if (!masterPassword) {
+            showToast('Please unlock vault first', 'error');
+            return;
+        }
+
+        showLoading(true);
+        try {
+            const backupData = await StorageModule.exportForBackup();
+            const result = await BackupModule.uploadToGoogleDrive(backupData);
+            showToast('Backup saved to Google Drive!', 'success');
+            updateGoogleDriveUI();
+        } catch (error) {
+            console.error('Google Drive backup error:', error);
+            showToast('Failed to backup: ' + error.message, 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    async function restoreFromGoogleDrive() {
+        if (!BackupModule.isSignedIn()) {
+            showToast('Please connect to Google Drive first', 'error');
+            return;
+        }
+
+        showLoading(true);
+        try {
+            const backups = await BackupModule.listGoogleDriveBackups();
+            if (backups.length === 0) {
+                showToast('No backups found in Google Drive', 'info');
+                return;
+            }
+
+            // Get the most recent backup
+            const latestBackup = backups[0];
+            const backupData = await BackupModule.downloadFromGoogleDrive(latestBackup.id);
+
+            // Verify it's a valid backup
+            if (!backupData.salt || !backupData.verificationHash) {
+                throw new Error('Invalid backup file');
+            }
+
+            await StorageModule.importFromBackup(backupData);
+
+            // Reload vault
+            masterPassword = null;
+            showScreen('login');
+            await loadPasswordHint();
+            showToast('Backup restored! Enter your master password.', 'success');
+        } catch (error) {
+            console.error('Google Drive restore error:', error);
+            showToast('Failed to restore: ' + error.message, 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function updateGoogleDriveUI() {
+        const loggedOut = document.getElementById('gdrive-logged-out');
+        const loggedIn = document.getElementById('gdrive-logged-in');
+        const emailDisplay = document.getElementById('gdrive-email');
+        const statusDisplay = document.getElementById('gdrive-status');
+        const avatar = document.getElementById('gdrive-avatar');
+
+        if (!loggedOut || !loggedIn) return;
+
+        if (BackupModule.isSignedIn()) {
+            loggedOut.classList.add('hidden');
+            loggedIn.classList.remove('hidden');
+
+            // Get user profile
+            const profile = BackupModule.getSignedInUserProfile();
+            if (profile) {
+                emailDisplay.textContent = profile.email;
+                if (profile.imageUrl && avatar) {
+                    avatar.src = profile.imageUrl;
+                    avatar.style.display = 'block';
+                }
+            } else {
+                emailDisplay.textContent = BackupModule.getSignedInUserEmail() || 'Connected';
+            }
+            statusDisplay.textContent = 'Ready to backup';
+        } else {
+            loggedOut.classList.remove('hidden');
+            loggedIn.classList.add('hidden');
+            if (avatar) {
+                avatar.style.display = 'none';
+            }
         }
     }
 
