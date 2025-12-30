@@ -23,9 +23,32 @@ import httpx
 # ==================== CONFIG ====================
 
 DATABASE_PATH = "securevault.db"
-SECRET_KEY = os.environ.get("SECRET_KEY", secrets.token_hex(32))
+SECRET_KEY_FILE = ".secret_key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 30
+
+def get_or_create_secret_key():
+    """Get persistent secret key from file, or create one if it doesn't exist."""
+    # First check environment variable
+    env_key = os.environ.get("SECRET_KEY")
+    if env_key:
+        return env_key
+    
+    # Check for existing key file
+    if os.path.exists(SECRET_KEY_FILE):
+        with open(SECRET_KEY_FILE, 'r') as f:
+            return f.read().strip()
+    
+    # Generate and save new key
+    new_key = secrets.token_hex(32)
+    with open(SECRET_KEY_FILE, 'w') as f:
+        f.write(new_key)
+    # Secure the file (owner read/write only)
+    os.chmod(SECRET_KEY_FILE, 0o600)
+    print(f"🔑 Generated new secret key and saved to {SECRET_KEY_FILE}")
+    return new_key
+
+SECRET_KEY = get_or_create_secret_key()
 
 # ==================== APP SETUP ====================
 
