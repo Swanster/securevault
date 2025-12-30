@@ -1,23 +1,23 @@
 /* ==================== CSS VARIABLES ==================== */
 :root {
-    --primary: #6366f1;
-    --primary-hover: #4f46e5;
-    --primary-light: #818cf8;
-    --primary-glow: rgba(99, 102, 241, 0.5);
-    --accent: #22d3ee;
-    --bg-dark: #0f0f1a;
-    --bg-card: #1a1a2e;
-    --bg-card-hover: #252540;
-    --bg-input: #252540;
-    --glass-bg: rgba(26, 26, 46, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --text-primary: #ffffff;
-    --text-secondary: #a1a1aa;
-    --text-muted: #71717a;
+    --primary: #00ADB5;
+    --primary-hover: #00969e;
+    --primary-light: #33bdc4;
+    --primary-glow: rgba(0, 173, 181, 0.5);
+    --accent: #00ADB5;
+    --bg-dark: #222831;
+    --bg-card: #393E46;
+    --bg-card-hover: #454c56;
+    --bg-input: #393E46;
+    --glass-bg: rgba(57, 62, 70, 0.9);
+    --glass-border: rgba(238, 238, 238, 0.1);
+    --text-primary: #EEEEEE;
+    --text-secondary: #c7c7c7;
+    --text-muted: #9a9a9a;
     --success: #22c55e;
     --warning: #f59e0b;
     --error: #ef4444;
-    --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    --gradient-primary: linear-gradient(135deg, #00ADB5 0%, #00868d 100%);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
     --shadow-glow: 0 0 20px var(--primary-glow);
     --radius-md: 12px;
@@ -140,7 +140,7 @@ textarea {
     .sidebar {
         width: 240px;
         min-width: 240px;
-        background: #2c3e50;
+        background: #222831;
         display: flex;
         flex-direction: column;
         height: 100vh;
@@ -230,7 +230,7 @@ textarea {
         display: flex;
         flex-direction: column;
         overflow-y: auto;
-        background: #f5f6f7;
+        background: #393E46;
         padding: var(--spacing-lg) var(--spacing-xl);
     }
 
@@ -250,12 +250,12 @@ textarea {
     .main-header-left .header-title {
         font-size: 1.5rem;
         font-weight: 600;
-        color: #333;
+        color: #EEEEEE;
     }
 
     .item-count {
         font-size: 1rem;
-        color: #666;
+        color: #c7c7c7;
     }
 
     .main-header-right {
@@ -266,8 +266,8 @@ textarea {
 
     .view-toggle {
         display: flex;
-        background: white;
-        border: 1px solid #ddd;
+        background: #222831;
+        border: 1px solid rgba(238, 238, 238, 0.2);
         border-radius: var(--radius-md);
         overflow: hidden;
     }
@@ -279,7 +279,7 @@ textarea {
         align-items: center;
         justify-content: center;
         background: transparent;
-        color: #666;
+        color: #c7c7c7;
         transition: all var(--transition-fast);
     }
 
@@ -289,7 +289,7 @@ textarea {
     }
 
     .view-btn:hover {
-        background: #f0f0f0;
+        background: #454c56;
     }
 
     .view-btn.active {
@@ -304,24 +304,24 @@ textarea {
     }
 
     .main-content .search-bar input {
-        background: white;
-        border-color: #ddd;
-        color: #333;
+        background: #222831;
+        border-color: rgba(238, 238, 238, 0.2);
+        color: #EEEEEE;
     }
 
     .main-content .search-bar input::placeholder {
-        color: #999;
+        color: #9a9a9a;
     }
 
     .main-content .search-bar svg {
-        color: #999;
+        color: #9a9a9a;
     }
 
     /* ==================== PASSWORD GRID ==================== */
     .password-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: var(--spacing-md);
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+        gap: var(--spacing-md) !important;
     }
 
     .password-list.list-view {
@@ -329,64 +329,75 @@ textarea {
         flex-direction: column;
     }
 
-    /* Card style for grid view */
+    /* Card style for grid view - LastPass style */
     .password-item {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         padding: 0;
-        background: white;
+        background: #393E46;
         border: none;
-        border-radius: var(--radius-lg);
+        border-radius: 8px;
         overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         cursor: pointer;
         transition: all var(--transition-fast);
     }
 
     .password-item:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     .password-item-icon {
         width: 100%;
-        height: 100px;
+        height: 80px;
         border-radius: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 2rem;
+        font-size: 1.25rem;
+        position: relative;
     }
 
     .password-item-icon svg {
-        width: 40px;
-        height: 40px;
+        width: 20px;
+        height: 20px;
         stroke: white;
         fill: none;
-        stroke-width: 1.5;
+        stroke-width: 2;
     }
 
     .password-item-icon img {
         width: 48px;
         height: 48px;
-        border-radius: var(--radius-md);
+        border-radius: 6px;
+        object-fit: contain;
+        background: white;
+        padding: 4px;
     }
 
     .password-item-info {
-        padding: var(--spacing-md);
+        padding: 10px 12px;
         width: 100%;
+        background: #393E46;
     }
 
     .password-item-name {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 4px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: #EEEEEE;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .password-item-username {
         font-size: 0.75rem;
-        color: #666;
+        color: #c7c7c7;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .password-item-actions {
@@ -422,16 +433,45 @@ textarea {
     }
 
     /* ==================== CARD COLORS ==================== */
-    .password-item-icon.color-blue { background: #3b82f6; }
-    .password-item-icon.color-orange { background: #f97316; }
-    .password-item-icon.color-teal { background: #14b8a6; }
-    .password-item-icon.color-yellow { background: #eab308; }
-    .password-item-icon.color-purple { background: #8b5cf6; }
-    .password-item-icon.color-green { background: #22c55e; }
-    .password-item-icon.color-red { background: #ef4444; }
-    .password-item-icon.color-pink { background: #ec4899; }
-    .password-item-icon.color-cyan { background: #06b6d4; }
-    .password-item-icon.color-slate { background: #64748b; }
+    .password-item-icon.color-blue {
+        background: #3b82f6;
+    }
+
+    .password-item-icon.color-orange {
+        background: #f97316;
+    }
+
+    .password-item-icon.color-teal {
+        background: #14b8a6;
+    }
+
+    .password-item-icon.color-yellow {
+        background: #eab308;
+    }
+
+    .password-item-icon.color-purple {
+        background: #8b5cf6;
+    }
+
+    .password-item-icon.color-green {
+        background: #22c55e;
+    }
+
+    .password-item-icon.color-red {
+        background: #ef4444;
+    }
+
+    .password-item-icon.color-pink {
+        background: #ec4899;
+    }
+
+    .password-item-icon.color-cyan {
+        background: #06b6d4;
+    }
+
+    .password-item-icon.color-slate {
+        background: #64748b;
+    }
 
     /* Category section headers */
     .category-section {
@@ -450,18 +490,18 @@ textarea {
     .category-header h3 {
         font-size: 0.875rem;
         font-weight: 600;
-        color: #333;
+        color: #EEEEEE;
     }
 
     .category-header .count {
         font-size: 0.875rem;
-        color: #666;
+        color: #c7c7c7;
     }
 
     .category-header .toggle-icon {
         width: 16px;
         height: 16px;
-        color: #666;
+        color: #c7c7c7;
         transition: transform var(--transition-fast);
     }
 
@@ -471,8 +511,8 @@ textarea {
 
     .category-items {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: var(--spacing-md);
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: var(--spacing-sm);
     }
 
     .category-items.list-view {
@@ -486,7 +526,7 @@ textarea {
 
     /* Empty state for desktop */
     .empty-state {
-        color: #666;
+        color: #c7c7c7;
     }
 
     .empty-state svg {
@@ -494,7 +534,7 @@ textarea {
     }
 
     .empty-state h3 {
-        color: #333;
+        color: #EEEEEE;
     }
 
     /* FAB position adjustment */
@@ -883,46 +923,54 @@ textarea {
 
 /* Security Audit Dashboard */
 .security-audit {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: linear-gradient(135deg, rgba(0, 173, 181, 0.1) 0%, rgba(34, 40, 49, 0.9) 100%);
+    border: 1px solid rgba(0, 173, 181, 0.3);
     border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .security-score {
     display: flex;
     align-items: center;
-    gap: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--glass-border);
 }
 
 .score-circle {
-    width: 80px;
-    height: 80px;
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
     border: 4px solid;
     flex-shrink: 0;
+    background: rgba(34, 40, 49, 0.8);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .score-circle.good {
     border-color: var(--success);
     color: var(--success);
+    box-shadow: 0 0 25px rgba(34, 197, 94, 0.3);
 }
 
 .score-circle.fair {
     border-color: var(--warning);
     color: var(--warning);
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.3);
 }
 
 .score-circle.poor {
     border-color: var(--error);
     color: var(--error);
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.3);
 }
 
 .score-details {
@@ -930,33 +978,49 @@ textarea {
 }
 
 .score-title {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     font-weight: 600;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
+    color: var(--text-primary);
 }
 
 .score-subtitle {
     font-size: 0.875rem;
     color: var(--text-secondary);
+    line-height: 1.5;
 }
 
 .security-stats {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: var(--spacing-md);
 }
 
+@media (max-width: 500px) {
+    .security-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 .security-stat {
-    background: var(--bg-input);
+    background: rgba(34, 40, 49, 0.6);
     border-radius: var(--radius-md);
-    padding: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-sm);
     text-align: center;
+    border: 1px solid transparent;
+    transition: all var(--transition-fast);
+}
+
+.security-stat:hover {
+    background: rgba(0, 173, 181, 0.1);
+    border-color: rgba(0, 173, 181, 0.2);
+    transform: translateY(-2px);
 }
 
 .stat-value {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
 }
 
 .stat-value.good {
@@ -1206,30 +1270,55 @@ textarea {
 
 .settings-section {
     margin-bottom: var(--spacing-xl);
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .settings-section-title {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text-muted);
-    margin-bottom: var(--spacing-md);
+    letter-spacing: 1.5px;
+    color: var(--primary);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.settings-section-title::before {
+    content: '';
+    width: 4px;
+    height: 16px;
+    background: var(--gradient-primary);
+    border-radius: 2px;
 }
 
 .settings-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--spacing-md);
-    background: var(--bg-input);
-    border: 1px solid var(--glass-border);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: rgba(34, 40, 49, 0.6);
+    border: 1px solid transparent;
     border-radius: var(--radius-md);
     margin-bottom: var(--spacing-sm);
+    transition: all var(--transition-fast);
+}
+
+.settings-item:last-child {
+    margin-bottom: 0;
 }
 
 .settings-item:hover {
-    border-color: var(--primary);
+    background: rgba(0, 173, 181, 0.1);
+    border-color: rgba(0, 173, 181, 0.3);
+    transform: translateX(4px);
 }
 
 .settings-item-info {
@@ -1238,18 +1327,22 @@ textarea {
 
 .settings-item-title {
     font-weight: 500;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+    font-size: 0.9375rem;
 }
 
 .settings-item-desc {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    line-height: 1.4;
 }
 
 .toggle {
     position: relative;
     width: 52px;
     height: 28px;
+    flex-shrink: 0;
 }
 
 .toggle input {
@@ -1262,10 +1355,10 @@ textarea {
     position: absolute;
     cursor: pointer;
     inset: 0;
-    background: var(--bg-card);
-    border: 1px solid var(--glass-border);
+    background: rgba(34, 40, 49, 0.8);
+    border: 2px solid rgba(238, 238, 238, 0.2);
     border-radius: 28px;
-    transition: var(--transition-fast);
+    transition: all var(--transition-fast);
 }
 
 .toggle-slider::before {
@@ -1273,16 +1366,18 @@ textarea {
     content: '';
     height: 20px;
     width: 20px;
-    left: 3px;
-    bottom: 3px;
+    left: 2px;
+    bottom: 2px;
     background: var(--text-secondary);
     border-radius: 50%;
-    transition: var(--transition-fast);
+    transition: all var(--transition-fast);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .toggle input:checked+.toggle-slider {
     background: var(--primary);
     border-color: var(--primary);
+    box-shadow: 0 0 12px rgba(0, 173, 181, 0.4);
 }
 
 .toggle input:checked+.toggle-slider::before {
